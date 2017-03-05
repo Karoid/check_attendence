@@ -20,7 +20,7 @@
   color: #FFF;
   text-shadow: 0 0 0.5em #000;
   }
-
+  #respond{ transition: .5s}
   .input{
   display: block;
   margin: 2em auto;
@@ -30,18 +30,41 @@
   font-size: 1.5em;
   text-align: center;
   box-shadow: 0 0 1em 0.25em rgba(0,0,0,0.2);
+  transition: .5s
   }
+
+  .input.error{
+    background-color: red;
+    color:white;
+  }
+
+  .input.error + #respond{color:#ff8a8a}
+
+  .input.success{
+    background-color: #5cb85c;
+  }
+
+  .input.success + #respond{color:#5cb85c}
+
+  .input.warn{
+    background-color: yellow;
+  }
+
+  .input.warn + #respond{color:yellow}
 </style>
 
 <div class="form-body">
     <div class="wrapper" >
         <div class="info">출석 번호를 입력하세요!</div>
         <input class="input" type='text'/>
+        <div class="info" id="respond"></div>
     </div>
 </div>
 <script src="http://code.jquery.com/jquery-1.10.2.js" type="text/javascript"></script>
 <script type="text/javascript">
-  document.getElementsByClassName("input")[0].addEventListener('keypress', function (e) {
+  var INPUT = $('.input')
+  var RESPOND = $('#respond')
+  INPUT.on('keypress', function (e) {
     var key = e.which || e.keyCode;
     if (key === 13) { // 13 is enter
       // code for enter
@@ -50,7 +73,20 @@
         type: 'GET',
         dataType: 'json',
         data: {code: $('.input').val()},
-        success: function(data){console.log(data)}
+        success: function(data){
+          console.log(data);
+          if (data.err) {
+            INPUT.addClass('error')
+            setTimeout(function(){INPUT.removeClass('error')},1000)
+          }else if(data.warn) {
+            INPUT.addClass('warn')
+            setTimeout(function(){INPUT.removeClass('warn')},1000)
+          }else{
+            INPUT.addClass('success')
+            setTimeout(function(){INPUT.removeClass('success')},1000)
+          }
+          RESPOND.html(data.respond)
+        }
       })
     }
   })

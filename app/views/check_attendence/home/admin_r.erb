@@ -1,0 +1,30 @@
+<%= stylesheet_link_tag "check_attendence/main" %>
+<div class="form-body">
+<table class="table article_list" style="max-width: 550px; margin: 90px auto 0;">
+<tbody>
+<%@attendence_list.attributes.each do |attr|%>
+<tr>
+  <td><%=attr[0]%></td>
+  <td><%=attr[1]%></td>
+</tr>
+<%end%>
+</tbody>
+</table>
+
+<table class="table article_list" style="max-width: 550px; margin: 90px auto 0;">
+  <thead>
+    <td>#</td>
+    <td>이름</td><td>출석시각</td>
+  </thead>
+  <tbody>
+  <%@attendence.each do |x|%>
+  <tr>
+    <td><%=x.id%></td>
+    <td><%=x.user_id%></td>
+    <td><%=x.created_at%></td>
+  </tr>
+  <%end%>
+  </tbody>
+</table>
+<a href="../admin" style="width: 100px; padding: 7px; margin: 0px auto; display: block; text-align: center; font-size: 18px; border: 1px solid #dddddd;color:white">돌아가기</a>
+</div>

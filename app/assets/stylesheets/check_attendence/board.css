@@ -1,0 +1,152 @@
+/*이 안에 들어있는 CSS내용*/
+/*3. 각 게시판의 목록*/
+/*4. 글 안에 있는 댓글  631번째 줄*/
+
+/*3. 각 게시판의 목록*/
+#title{
+  margin: 60px auto 30px auto;
+  text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+}
+#loading{
+  width: 100px;
+  height: 100px;
+  position: fixed;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+}
+.search{
+  text-align: center
+}
+.form-body table thead{border-color: white;}
+.form-body table tr .th {
+  border: none;
+  border-bottom: 1px solid white !important;
+  font-size: 25px;
+  text-align: center;
+}
+.form-body table tbody tr:hover {
+  background-color: rgba(0,0,0,.3);
+}
+.article{margin:0 15px}
+.form-body .article_list tbody>tr>td a{
+  color:white;
+  display:block;
+}
+.article_list thead>tr>th:nth-child(1),
+.article_list tbody>tr>th{
+  width: 5%;
+  text-align: center;
+}
+.article_list thead>tr>th:nth-child(3),
+.article_list tbody>tr>td:nth-child(3){
+  width: 80px;
+  text-align: center;
+}
+.article_list thead>tr>th:nth-child(4),
+.article_list tbody>tr>td:nth-child(4){
+  width: 70px;
+  text-align: center;
+}
+.article_list thead>tr>th:nth-child(5),
+.article_list tbody>tr>td:nth-child(5){
+  text-align: center;
+}
+@media screen and (min-width: 768px){
+  .article_list thead>tr>th:nth-child(3),
+  .article_list tbody>tr>td:nth-child(3){
+    width: 100px!important;
+  }
+  .article_list thead>tr>th:nth-child(4),
+  .article_list tbody>tr>td:nth-child(4){
+    width: 120px!important;
+  }
+  .hidden-xs{
+    display: inline-block!important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  #title {
+    font-size: 40px;
+  }
+
+  table {
+    margin-top: 20px !important;
+  }
+  thead {
+    display: none;
+  }
+  tbody {
+    overflow: none;
+  }
+  .form-body tr {
+    width: 100%;
+    display: inline-block;
+    border-bottom: 1px solid white !important;
+    position: relative;
+  }
+  tr:first-child {
+    border-top: 1px solid #dddddd !important;
+  }
+  td {
+    display: block;
+    padding: 0px !important;
+    border: none !important;
+  }
+  .td_number {
+    display: none;
+  }
+  .td_title {
+    width: 75%;
+    margin: 50px 0 25px 25px;
+    float: left;
+    font-size: 18px;
+  }
+  .td_name {
+    width: auto !important;
+    position: absolute !important;
+    top: 22px !important;
+    right: 25px !important;
+  }
+  .td_date {
+    width: auto !important;
+    position: absolute !important;
+    top: 22px !important;
+    left: 25px !important;
+  }
+  .td_page_view {
+    display: none;
+  }
+}
+/*페이지 네이션*/
+nav div span, nav div em, nav div a {
+  border: none !important;
+}
+nav div span, nav div em:hover, nav div a:hover {
+  background-color: transparent !important;
+  color: #ddd !important
+}
+nav .previous_page, nav .next_page {
+  color: #ddd !important;
+}
+nav div em {
+  color: rgb(90, 210, 210) !important;
+}
+.form-body input[type=text]{
+  border-radius: 2px;
+background-color: rgba(255,255,255,.3);
+border: 0px solid;
+color: white;
+padding: 3px;
+}
+.form-body input[type=submit]{
+  padding: 4px 6px;
+  text-align: center;
+  border: 0px solid #dddddd;
+  color: white;
+  background-color: rgba(0,0,0,.3);
+  border-radius: 2px;
+}

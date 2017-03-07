@@ -11,6 +11,9 @@ module CheckAttendence
     mattr_accessor :use_layout
     @@use_layout = false
 
+    mattr_accessor :admin_layout
+    @@admin_layout = nil
+
     mattr_accessor :default_model
 
     mattr_accessor :notice_route

@@ -17,8 +17,8 @@ $.ajax({
       var datetime = new Date(article.created_at)
       html += '<tr>'+
       '<td class="td_number" scope="row">'+article.id+'</th>'+
-      '<td class="td_title"><a href="/board/'+window.location.pathname.split("/")[2]+'/'+window.location.pathname.split("/")[3]+'/'+article.id+'">'+article.title+'</a></td>'+
-      '<td class="td_name">'+article.member_name+'</td>'+
+      '<td class="td_title"><a href="/admin/'+article.id+'">'+article.name+'</a></td>'+
+      '<td class="td_name">'+article.user+'</td>'+
       '<td class="td_date"><span class="hidden-xs">'+datetime.getFullYear()+'.</span>'+datetime.getMonth()+"."+datetime.getDate()+'</td>'+
       '<td class="td_page_view">'+article.view+'</td>'+
       '</tr>'

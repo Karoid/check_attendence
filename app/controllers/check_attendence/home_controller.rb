@@ -37,8 +37,14 @@ module CheckAttendence
     end
 
     def admin
-      @article_page = (CheckAttendence.default_model.to_s+"List").constantize.where("name LIKE ?", "%#{params[:search]}%").paginate(:page => 1, :per_page => 5).order('id DESC')
-
+      @article_page = (CheckAttendence.default_model.to_s+"List").constantize.where("name LIKE ?", "%#{params[:search]}%")
+      .paginate(:page => params[:page], :per_page => 5).order('id DESC')
+      #Json 요청으로 목록 받아올때
+      if params[:json]
+        respond_to do |format|
+          format.json { render json: make_object_to_json(@article_page) }
+        end
+      end
     end
 
     def admin_form
@@ -46,8 +52,11 @@ module CheckAttendence
     end
 
     def admin_c
-      if (CheckAttendence.default_model.to_s+"List").constantize.create(attendence_list_params)
-        render json: {:success => true}
+      respond_to do |format|
+        if (CheckAttendence.default_model.to_s+"List").constantize.create(attendence_list_params)
+          format.html {redirect_to check_attendence_path + '/admin'}
+          format.json {render json: {:success => true}}
+        end
       end
     end
 
@@ -72,5 +81,19 @@ module CheckAttendence
       end
     end
 
+
+    private
+    def make_object_to_json(object)
+      #AJAX를 위해 view 담기
+      @article_page_json = []
+      object.each do |value|
+        hash = {}
+        hash = value.attributes
+        hash[:user] = CheckAttendence.user_model_name.capitalize.constantize.find(value.user_id).email
+        hash[:view] = (CheckAttendence.default_model).where(attendence_list_id: value.id).count
+        @article_page_json.push(hash)
+      end
+      return @article_page_json
+    end
   end
 end

@@ -125,15 +125,20 @@
 nav div span, nav div em, nav div a {
   border: none !important;
 }
-nav div span, nav div em:hover, nav div a:hover {
+nav div.pagination span, nav div.pagination em:hover, nav div.pagination a:hover {
   background-color: transparent !important;
   color: #ddd !important
 }
 nav .previous_page, nav .next_page {
   color: #ddd !important;
 }
-nav div em {
+nav div.pagination a {
+  color:white;
+  padding-right: 5px;
+}
+nav div.pagination em {
   color: rgb(90, 210, 210) !important;
+  padding-right: 5px;
 }
 .form-body input[type=text]{
   border-radius: 2px;

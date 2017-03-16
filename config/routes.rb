@@ -1,6 +1,6 @@
 CheckAttendence::Engine.routes.draw do
   get 'check' => 'home#index'
-  get 'admin' => 'home#admin'
+  get 'admin' => 'home#admin', :as => 'attendence_admin'
   get 'admin/new' => 'home#admin_form'
   get 'admin/:id' => 'home#admin_r', :constraints => { :id => /[0-9]+(\%7C[0-9]+)*/ }
   get 'admin/new/:id' => 'home#admin_form', :constraints => { :id => /[0-9]+(\%7C[0-9]+)*/ }

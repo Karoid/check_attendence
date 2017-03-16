@@ -1,9 +1,35 @@
+$.ajax({
+  type: 'GET',
+  url: "",
+  dataType: 'json',
+  data: {json:true},
+  success: (function(data) {
+    $('table.article_list tbody').html("");
+    //게시판 내용 갱신
+    var html = ""
+    $.each(data,function(index, article) {
+      var datetime = new Date(article.created_at)
+      html += '<tr>'+
+      '<td class="td_number" scope="row">'+article.id+'</th>'+
+      '<td class="td_title"><a href="admin/'+article.id+'">'+article.name+'</a></td>'+
+      '<td class="td_name">'+article.user+'</td>'+
+      '<td class="td_date"><span class="hidden-xs">'+datetime.getFullYear()+'.</span>'+datetime.getMonth()+"."+datetime.getDate()+'</td>'+
+      '<td class="td_page_view">'+article.view+'</td>'+
+      '</tr>'
+    });
+    $('table.article_list tbody').html(html);
+  })
+});
+
+
 $('.pagination a').click(pagination_click_desktop)
 function pagination_click_desktop(event) {
-var page = parseInt(this.innerHTML)
+var page = parseInt(this.innerHTML||1)
 var loading;
 var thisLink = $(this)
-event.preventDefault();
+try {
+  event.preventDefault();
+} catch (e) {}
 $.ajax({
   type: 'GET',
   url: $(this).attr('href'),
@@ -17,7 +43,7 @@ $.ajax({
       var datetime = new Date(article.created_at)
       html += '<tr>'+
       '<td class="td_number" scope="row">'+article.id+'</th>'+
-      '<td class="td_title"><a href="/admin/'+article.id+'">'+article.name+'</a></td>'+
+      '<td class="td_title"><a href="admin/'+article.id+'">'+article.name+'</a></td>'+
       '<td class="td_name">'+article.user+'</td>'+
       '<td class="td_date"><span class="hidden-xs">'+datetime.getFullYear()+'.</span>'+datetime.getMonth()+"."+datetime.getDate()+'</td>'+
       '<td class="td_page_view">'+article.view+'</td>'+

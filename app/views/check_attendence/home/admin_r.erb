@@ -1,6 +1,7 @@
 <%= stylesheet_link_tag "check_attendence/main" %>
 <div class="form-body">
-<table class="table article_list" style="max-width: 550px; margin: 90px auto 0;">
+  <a href="../admin" class="whitebox" style="margin: 40px auto">목록으로</a>
+<table class="table article_list" style="max-width: 550px; margin: 40px auto 0;">
 <tbody>
 <%@attendence_list.attributes.each do |attr|%>
 <tr>
@@ -10,8 +11,24 @@
 <%end%>
 </tbody>
 </table>
-<a href="" style="width: 100px; padding: 7px; margin: 0px auto; display: block; text-align: center; font-size: 18px; border: 1px solid #dddddd;color:white">10초간 출석받기</a>
-<a href="" style="width: 100px; padding: 7px; margin: 0px auto; display: block; text-align: center; font-size: 18px; border: 1px solid #dddddd;color:white">1분간 출석받기</a>
+<center>
+  <div class="progress">
+    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+    </div>
+    <a href="" class="ten_second whitebox-text">10초간 출석받기</a>
+  </div>
+
+  <span id="data" style="padding:10px">
+    <input type="number" style="border:none;border-bottom:1px solid;background:none;width:50px;">초 후 시작하여,
+    <input type="number" style="border:none;border-bottom:1px solid;background:none;width:50px;">초 간 지속되도록
+  </span>
+  <div class="progress">
+    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+    </div>
+
+    <a href="" class=" whitebox-text custom">출석받기</a>
+  </div>
+</center>
 
 <table class="table article_list" style="max-width: 550px; margin: 90px auto 0;">
   <thead>
@@ -20,13 +37,70 @@
   </thead>
   <tbody>
   <%@attendence.each do |x|%>
+  <%record = CheckAttendence.user_model_name.capitalize.constantize.find(x.user_id)%>
   <tr>
     <td><%=x.id%></td>
-    <td><%=x.user_id%></td>
+    <td><%=record.username || record.email%></td>
     <td><%=x.created_at%></td>
   </tr>
   <%end%>
+
+  <%= will_paginate @attendence , previous_label: "◀", next_label: "▶", renderer: CustomLinkRenderer,  url_scope: CheckAttendence::Engine.routes %>
+
   </tbody>
 </table>
-<a href="../admin" style="width: 100px; padding: 7px; margin: 0px auto; display: block; text-align: center; font-size: 18px; border: 1px solid #dddddd;color:white">돌아가기</a>
 </div>
+
+<script>
+var timer
+  $('.ten_second').click(function(event) {
+    event.preventDefault();
+    var this_obj = $(this)
+    var percent_obj = this_obj.prev('.progress-bar');
+    update(this_obj,percent_obj,0,10,"10초간 출석받기")
+  });
+$('.custom').click(function(event) {
+  event.preventDefault();
+  var this_obj = $(this)
+  var percent_obj = this_obj.prev('.progress-bar');
+  var start_duration = parseInt($("#data input[type=number]").eq(0).val())
+  var end_duration = parseInt($("#data input[type=number]").eq(1).val())
+  update(this_obj,percent_obj,start_duration,(start_duration + end_duration),"출석받기")
+});
+
+function update(this_obj,percent_obj,start_duration,end_duration,txt){
+  $.ajax({
+    url: 'update/' + <%= @attendence_list.id %>,
+    type: 'patch',
+    dataType: 'json',
+    data: {'attendence_list[name]' : '<%= @attendence_list.name %>',
+    'attendence_list[code]' : '<%= @attendence_list.code %>', time_start:start_duration, time_end: end_duration},
+    success: function(data){
+      var INITAL_TEXT = txt
+      var start_date = new Date(data.start)
+      var end_date = new Date(data.end)
+      var duration = end_date - start_date
+      var duration_start = start_date - $.now()
+      clearInterval(timer)
+      timer = setInterval(function(){
+        if($.now()<start_date){
+          console.log((start_date-$.now())+"초 후 시작")
+          percent_obj.css('width','100%')
+          percent_obj.css('opacity', 1 - (start_date-$.now())/duration_start);
+          this_obj.html(Math.floor((start_date-$.now())/100)/10+"초 후 시작")
+        }else if($.now()<end_date){
+          percent_obj.css('width', (end_date-$.now())/duration*100+'%');
+          this_obj.html(Math.floor((end_date-$.now())/100)/10+"초 간 가능")
+        }else {
+          clearInterval(timer)
+          this_obj.html(INITAL_TEXT)
+        }
+      },100)
+
+    },
+    error: function(err){
+
+    }
+  })
+}
+</script>

@@ -19,15 +19,6 @@
       </tr>
     </thead>
     <tbody>
-      <%@article_page.each do |article|%>
-      <tr class="<%if article.id == params[:id].to_i %>selected<%end%>">
-        <td class="td_number" scope="row"><%=article.id%></th>
-        <td class="td_title"><a href="admin/<%=article.id%>"><%=article.name%></a></td>
-        <td class="td_name"><%=CheckAttendence.user_model_name.capitalize.constantize.find(article.user_id).email%></td>
-        <td class="td_date"><span class='hidden-xs'><%=article.created_at.strftime("%Y.")%></span><%=article.created_at.strftime("%m.%d")%></td>
-        <td class="td_page_view"><%=(CheckAttendence.default_model).where(attendence_list_id: article.id).count%></td>
-      </tr>
-      <%end%>
     </tbody>
   </table>
   <!--게시글 목록 끝-->

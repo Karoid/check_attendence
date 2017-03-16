@@ -14,7 +14,7 @@ module CheckAttendence
         @my_record_list = (CheckAttendence.default_model.to_s+"List").constantize.where(code: params[:code]).take
         if @my_record_list
           # code exist
-          if @my_record_list.start < Time.now && @my_record_list.start >= Time.now
+          if @my_record_list.start < Time.now && @my_record_list.end >= Time.now
             #code is not expired
             @my_record = (CheckAttendence.default_model).where(attendence_list_id: @my_record_list.id)
             if @my_record.length > 0
@@ -53,14 +53,35 @@ module CheckAttendence
 
     def admin_c
       respond_to do |format|
-        if (CheckAttendence.default_model.to_s+"List").constantize.create(attendence_list_params)
-          format.html {redirect_to check_attendence_path + '/admin'}
+        @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.new(attendence_list_params)
+        if @attendence_list.save
+          format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id.to_s}
           format.json {render json: {:success => true}}
         end
       end
     end
 
     def admin_r
+      @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
+      @attendence = CheckAttendence.default_model.where(attendence_list_id: params[:id]).paginate(:page => params[:page], :per_page => 5).order('id DESC')
+      if params[:json]
+        respond_to do |format|
+          format.json { render json: make_object_to_json(@attendence) }
+        end
+      end
+    end
+
+    def admin_u
+      respond_to do |format|
+        @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
+        if @attendence_list.update(attendence_list_params)
+          format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id}
+          format.json {render json: {:end => @attendence_list.end, :start => @attendence_list.start}}
+        end
+      end
+    end
+
+    def admin_d
       @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
       @attendence = CheckAttendence.default_model.where(attendence_list_id: params[:id])
     end
@@ -69,9 +90,9 @@ module CheckAttendence
 
     def attendence_list_params
       params[:attendence_list][:user_id] = send('current_'+CheckAttendence.user_model_name).id
-      params[:attendence_list][:start] = Time.now + 10
-      params[:attendence_list][:end] = Time.now + 20
-      params[:attendence_list][:code] = Random.rand(1000..9999)
+      params[:attendence_list][:start] = Time.now + params[:time_start].to_i
+      params[:attendence_list][:end] = Time.now + params[:time_end].to_i
+      params[:attendence_list][:code] = params[:attendence_list][:code] || Random.rand(1000..9999)
       params.require(:attendence_list).permit(:name,:user_id,:code,:start,:end)
     end
 
@@ -89,7 +110,8 @@ module CheckAttendence
       object.each do |value|
         hash = {}
         hash = value.attributes
-        hash[:user] = CheckAttendence.user_model_name.capitalize.constantize.find(value.user_id).email
+        @this_record = CheckAttendence.user_model_name.capitalize.constantize.find(value.user_id)
+        hash[:user] = @this_record.username || @this_record.email
         hash[:view] = (CheckAttendence.default_model).where(attendence_list_id: value.id).count
         @article_page_json.push(hash)
       end

@@ -16,7 +16,7 @@ module CheckAttendence
           # code exist
           if @my_record_list.start < Time.now && @my_record_list.end >= Time.now
             #code is not expired
-            @my_record = (CheckAttendence.default_model).where(attendence_list_id: @my_record_list.id)
+            @my_record = (CheckAttendence.default_model).where(attendence_list_id: @my_record_list.id, user_id: send('current_'+CheckAttendence.user_model_name).id)
             if @my_record.length > 0
               #already checked attendence
               render json: {:respond => "이미 출석체크 하셨습니다", :warn => true}

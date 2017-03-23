@@ -10,13 +10,13 @@ module CheckAttendence
     layout CheckAttendence.admin_layout, only: [:admin, :admin_form, :admin_r]
     def index
       if params[:code]
-        @current_user = send('current_'+CheckAttendence.user_model_name)
-        @my_record_list = (CheckAttendence.default_model.to_s+"List").constantize.where(code: params[:code]).take
+        @current_user = current_user
+        @my_record_list = attendence_list_model.where(code: params[:code]).take
         if @my_record_list
           # code exist
           if @my_record_list.start < Time.now && @my_record_list.end >= Time.now
             #code is not expired
-            @my_record = (CheckAttendence.default_model).where(attendence_list_id: @my_record_list.id, user_id: send('current_'+CheckAttendence.user_model_name).id)
+            @my_record = (attendence_model).where(attendence_list_id: @my_record_list.id, user_id: current_user.id)
             if @my_record.length > 0
               #already checked attendence
               render json: {:respond => "이미 출석체크 하셨습니다", :warn => true}
@@ -37,7 +37,7 @@ module CheckAttendence
     end
 
     def admin
-      @article_page = (CheckAttendence.default_model.to_s+"List").constantize.where("name LIKE ?", "%#{params[:search]}%")
+      @article_page = attendence_list_model.where("name LIKE ?", "%#{params[:search]}%")
       .paginate(:page => params[:page], :per_page => 5).order('id DESC')
       #Json 요청으로 목록 받아올때
       if params[:json]
@@ -53,7 +53,7 @@ module CheckAttendence
 
     def admin_c
       respond_to do |format|
-        @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.new(attendence_list_params)
+        @attendence_list = attendence_list_model.new(attendence_list_params)
         if @attendence_list.save
           format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id.to_s}
           format.json {render json: {:success => true}}
@@ -62,8 +62,8 @@ module CheckAttendence
     end
 
     def admin_r
-      @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
-      @attendence = CheckAttendence.default_model.where(attendence_list_id: params[:id]).paginate(:page => params[:page], :per_page => 5).order('id DESC')
+      @attendence_list = attendence_list_model.find(params[:id])
+      @attendence = attendence_model.where(attendence_list_id: params[:id]).paginate(:page => params[:page], :per_page => 5).order('id DESC')
       if params[:json]
         respond_to do |format|
           format.json { render json: make_object_to_json(@attendence) }
@@ -73,7 +73,7 @@ module CheckAttendence
 
     def admin_u
       respond_to do |format|
-        @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
+        @attendence_list = attendence_list_model.find(params[:id])
         if @attendence_list.update(attendence_list_params)
           format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id}
           format.json {render json: {:end => @attendence_list.end, :start => @attendence_list.start}}
@@ -82,14 +82,15 @@ module CheckAttendence
     end
 
     def admin_d
-      @attendence_list = (CheckAttendence.default_model.to_s+"List").constantize.find(params[:id])
-      @attendence = CheckAttendence.default_model.where(attendence_list_id: params[:id])
+      @attendence_list = attendence_list_model.find(params[:id])
+      @attendence = attendence_model.where(attendence_list_id: params[:id])
     end
 
     private
 
     def attendence_list_params
-      params[:attendence_list][:user_id] = send('current_'+CheckAttendence.user_model_name).id
+      params[:attendence_list][:user_id] = current_user.id
+      params[:attendence_list][:username] = current_user.email || current_user.email
       params[:attendence_list][:start] = Time.now + params[:time_start].to_i
       params[:attendence_list][:end] = Time.now + params[:time_end].to_i
       params[:attendence_list][:code] = params[:attendence_list][:code] || Random.rand(1000..9999)
@@ -112,10 +113,20 @@ module CheckAttendence
         hash = value.attributes
         @this_record = CheckAttendence.user_model_name.capitalize.constantize.find(value.user_id)
         hash[:user] = @this_record.username || @this_record.email
-        hash[:view] = (CheckAttendence.default_model).where(attendence_list_id: value.id).count
+        hash[:view] = (attendence_model).where(attendence_list_id: value.id).count
         @article_page_json.push(hash)
       end
       return @article_page_json
+    end
+
+    def current_user
+      send('current_'+CheckAttendence.user_model_name)
+    end
+    def attendence_list_model
+      (CheckAttendence.default_model.to_s+"List").constantize
+    end
+    def attendence_model
+      CheckAttendence.default_model
     end
   end
 end

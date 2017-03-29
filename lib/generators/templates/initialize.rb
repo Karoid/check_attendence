@@ -1,3 +1,17 @@
+module CheckAttendence
+  module Ability
+    def admin_allowed?
+      # authourize admin page
+      false
+    end
+
+    def check_allowed?
+      # authourize check page
+      true
+    end
+  end
+end
+
 CheckAttendence.setup do |config|
   #if you use devise, this will work correctly
   #write down your user model name!

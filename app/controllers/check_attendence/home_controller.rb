@@ -6,9 +6,10 @@ module CheckAttendence
   end
 
   class HomeController
-    before_action 'authenticate_'+CheckAttendence.user_model_name+'!'
+    include CheckAttendence::Ability
     layout CheckAttendence.admin_layout, only: [:admin, :admin_form, :admin_r]
     def index
+      return not_allowed unless check_allowed?
       if params[:code]
         @current_user = current_user
         @my_record_list = attendence_list_model.where(code: params[:code]).take
@@ -37,6 +38,7 @@ module CheckAttendence
     end
 
     def admin
+      return not_allowed unless admin_allowed?
       @article_page = attendence_list_model.where("name LIKE ?", "%#{params[:search]}%")
       .paginate(:page => params[:page], :per_page => 5).order('id DESC')
       #Json 요청으로 목록 받아올때
@@ -48,10 +50,12 @@ module CheckAttendence
     end
 
     def admin_form
+      return not_allowed unless admin_allowed?
 
     end
 
     def admin_c
+      return not_allowed unless admin_allowed?
       respond_to do |format|
         @attendence_list = attendence_list_model.new(attendence_list_params)
         if @attendence_list.save
@@ -62,6 +66,7 @@ module CheckAttendence
     end
 
     def admin_r
+      return not_allowed unless admin_allowed?
       @attendence_list = attendence_list_model.find(params[:id])
       @attendence = attendence_model.where(attendence_list_id: params[:id]).paginate(:page => params[:page], :per_page => 5).order('id DESC')
       if params[:json]
@@ -72,6 +77,7 @@ module CheckAttendence
     end
 
     def admin_u
+      return not_allowed unless admin_allowed?
       respond_to do |format|
         @attendence_list = attendence_list_model.find(params[:id])
         if @attendence_list.update(attendence_list_params)
@@ -82,6 +88,7 @@ module CheckAttendence
     end
 
     def admin_d
+      return not_allowed unless admin_allowed?
       @attendence_list = attendence_list_model.find(params[:id])
       @attendence = attendence_model.where(attendence_list_id: params[:id])
     end
@@ -127,6 +134,12 @@ module CheckAttendence
     end
     def attendence_model
       CheckAttendence.default_model
+    end
+
+    # Method, which called when user tries to visit
+    def not_allowed
+      flash[:alert] = "Not authourized"
+      redirect_to :back
     end
   end
 end

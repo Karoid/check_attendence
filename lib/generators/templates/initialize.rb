@@ -1,8 +1,9 @@
 module CheckAttendence
   module Ability
+
     def admin_allowed?
       # authourize admin page
-      false
+      true
     end
 
     def check_allowed?
@@ -15,9 +16,15 @@ end
 CheckAttendence.setup do |config|
   #if you use devise, this will work correctly
   #write down your user model name!
-  config.user_model_name = "user"
+  #config.user_model_name = "user"
 
-  #if you don't want to use default route as /game/rsp, change as false
+  #write down main colum name to use it as "username"!
+  config.user_model_main_column = "email"
+
+  #home url
+  #config.home_url = "/"
+
+  #if you don't want to use default route as /attendence, change as false
   #you can bind route like [get 'my/route' => 'rock_scissors_paper/home#index'] in routes.rb
   #config.automatic_routes_mount = false
 
@@ -33,6 +40,4 @@ CheckAttendence.setup do |config|
   #if you need to notice playing this game, I recommend put notice written url
   #config.notice_route = "/attendence/notice"
 
-  #first point when user start's this game first
-  #config.initial_point = 5000
 end

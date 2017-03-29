@@ -12,7 +12,7 @@ $.ajax({
       html += '<tr>'+
       '<td class="td_number" scope="row">'+article.id+'</th>'+
       '<td class="td_title"><a href="admin/'+article.id+'">'+article.name+'</a></td>'+
-      '<td class="td_name">'+article.user+'</td>'+
+      '<td class="td_name">'+article.user_name+'</td>'+
       '<td class="td_date"><span class="hidden-xs">'+datetime.getFullYear()+'.</span>'+datetime.getMonth()+"."+datetime.getDate()+'</td>'+
       '<td class="td_page_view">'+article.view+'</td>'+
       '</tr>'
@@ -44,7 +44,7 @@ $.ajax({
       html += '<tr>'+
       '<td class="td_number" scope="row">'+article.id+'</th>'+
       '<td class="td_title"><a href="admin/'+article.id+'">'+article.name+'</a></td>'+
-      '<td class="td_name">'+article.user+'</td>'+
+      '<td class="td_name">'+article.user_name+'</td>'+
       '<td class="td_date"><span class="hidden-xs">'+datetime.getFullYear()+'.</span>'+datetime.getMonth()+"."+datetime.getDate()+'</td>'+
       '<td class="td_page_view">'+article.view+'</td>'+
       '</tr>'

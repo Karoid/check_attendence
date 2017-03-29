@@ -7,7 +7,8 @@ module CheckAttendence
 
   class HomeController
     include CheckAttendence::Ability
-    layout CheckAttendence.admin_layout, only: [:admin, :admin_form, :admin_r]
+    layout CheckAttendence.admin_layout, only: [:admin, :admin_form, :admin_r] if CheckAttendence.admin_layout
+
     def index
       return not_allowed unless check_allowed?
       if params[:code]
@@ -17,15 +18,8 @@ module CheckAttendence
           # code exist
           if @my_record_list.start < Time.now && @my_record_list.end >= Time.now
             #code is not expired
-            @my_record = (attendence_model).where(attendence_list_id: @my_record_list.id, user_id: current_user.id)
-            if @my_record.length > 0
-              #already checked attendence
-              render json: {:respond => "이미 출석체크 하셨습니다", :warn => true}
-            else
-              #check attendence
-              @my_record.create(user_id: @current_user.id)
-              render json: {:respond => @my_record_list.name}
-            end
+            @my_data = {attendence_list_id: @my_record_list.id, user_id: current_user.id, user_name: current_user_name}
+            check_attendence_if_not(@my_data, @my_record_list.name)
           else
             #code is expired
             render json: {:respond => "기한이 만료되었습니다", :err => true}
@@ -51,7 +45,7 @@ module CheckAttendence
 
     def admin_form
       return not_allowed unless admin_allowed?
-
+      @modify = attendence_list_model.find(params[:id]) if params[:id]
     end
 
     def admin_c
@@ -74,6 +68,28 @@ module CheckAttendence
           format.json { render json: make_object_to_json(@attendence) }
         end
       end
+
+      if params[:download]
+        @attendence_download = attendence_model.where(attendence_list_id: params[:id])
+        csv_string = CSV.generate do |csv|
+          csv << ["Attendence List Data"]
+          csv << @attendence_list.attributes.keys
+          csv << @attendence_list.attributes.values
+          csv << []
+          csv << []
+          csv << ["Attendence Data"]
+          @attendence_download[0] ? csv << @attendence_download[0].attributes.keys : nil
+          @attendence_download.each do |x|
+            csv << x.attributes.values
+          end
+        end
+
+        send_data(
+          csv_string.encode("EUC-KR"),
+          filename: "#{@attendence_list.name}.csv",
+          type: "text/csv; charset=EUC-KR; header=present"
+        )
+      end
     end
 
     def admin_u
@@ -81,7 +97,7 @@ module CheckAttendence
       respond_to do |format|
         @attendence_list = attendence_list_model.find(params[:id])
         if @attendence_list.update(attendence_list_params)
-          format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id}
+          format.html {redirect_to check_attendence_path + '/admin/' + @attendence_list.id.to_s}
           format.json {render json: {:end => @attendence_list.end, :start => @attendence_list.start}}
         end
       end
@@ -89,37 +105,60 @@ module CheckAttendence
 
     def admin_d
       return not_allowed unless admin_allowed?
-      @attendence_list = attendence_list_model.find(params[:id])
-      @attendence = attendence_model.where(attendence_list_id: params[:id])
+      @attendence_list = attendence_list_model.find(params[:id]).destroy
+      @attendence = attendence_model.where(attendence_list_id: params[:id]).destroy_all
+      render json: {:success=>true}
+    end
+
+    def admin_check_new
+      return not_allowed unless admin_allowed?
+      records = CheckAttendence.user_model_name.capitalize.constantize
+      .where(CheckAttendence.user_model_main_column => params[:user_name])
+      if records.count >= 1
+        user_id = records.take.id
+      else
+        user_id = nil
+      end
+
+      check_attendence_if_not({attendence_list_id: params[:list_id], user_id: user_id, user_name: params[:user_name]})
+    end
+
+    def admin_check_destroy
+      return not_allowed unless admin_allowed?
+      attendence_model.find(params[:check_id]).destroy
+      render json: {:success=>true}
     end
 
     private
 
-    def attendence_list_params
-      params[:attendence_list][:user_id] = current_user.id
-      params[:attendence_list][:username] = current_user.email || current_user.email
-      params[:attendence_list][:start] = Time.now + params[:time_start].to_i
-      params[:attendence_list][:end] = Time.now + params[:time_end].to_i
-      params[:attendence_list][:code] = params[:attendence_list][:code] || Random.rand(1000..9999)
-      params.require(:attendence_list).permit(:name,:user_id,:code,:start,:end)
-    end
-
-    def admin_layout
-      if CheckAttendence.admin_layout
-        render layout: CheckAttendence.admin_layout
+    def check_attendence_if_not(data, respond_msg = nil)
+      if attendence_model.where(data).length > 0
+        #already checked attendence
+        render json: {:respond => "이미 출석체크 하셨습니다", :warn => true}
+      else
+        if (save = attendence_model.create(data))
+          render json: {:respond => respond_msg, :id => save.id}
+        else
+          render json: {:respond => "저장에 오류가 있습니다", :err => true}
+        end
       end
     end
 
+    def attendence_list_params
+      params[:attendence_list][:user_id] = current_user.id
+      params[:attendence_list][:user_name] = current_user_name
+      params[:attendence_list][:start] = Time.now + params[:time_start].to_i
+      params[:attendence_list][:end] = Time.now + params[:time_end].to_i
+      params[:attendence_list][:code] = params[:attendence_list][:code] || Random.rand(1000..9999)
+      params.require(:attendence_list).permit(:name,:user_name,:user_id,:code,:start,:end)
+    end
 
-    private
     def make_object_to_json(object)
       #AJAX를 위해 view 담기
       @article_page_json = []
       object.each do |value|
         hash = {}
         hash = value.attributes
-        @this_record = CheckAttendence.user_model_name.capitalize.constantize.find(value.user_id)
-        hash[:user] = @this_record.username || @this_record.email
         hash[:view] = (attendence_model).where(attendence_list_id: value.id).count
         @article_page_json.push(hash)
       end
@@ -129,6 +168,11 @@ module CheckAttendence
     def current_user
       send('current_'+CheckAttendence.user_model_name)
     end
+
+    def current_user_name
+      current_user[CheckAttendence.user_model_main_column]
+    end
+
     def attendence_list_model
       (CheckAttendence.default_model.to_s+"List").constantize
     end
@@ -139,7 +183,11 @@ module CheckAttendence
     # Method, which called when user tries to visit
     def not_allowed
       flash[:alert] = "Not authourized"
-      redirect_to :back
+      begin
+        redirect_to :back
+      rescue
+        redirect_to CheckAttendence.home_url
+      end
     end
   end
 end

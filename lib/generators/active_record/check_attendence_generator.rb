@@ -42,7 +42,8 @@ module ActiveRecord
       def migration_data
 <<RUBY
       ## Database authenticatable
-      t.integer :user_id,              null: false
+      t.integer :user_id
+      t.string :user_name,              null: false
 
 RUBY
       end

@@ -35,11 +35,11 @@ then you can do your game in route "/attendence/check"
 Contribution directions go here.
 
 ## What to do
-* error should not orrur when user record destroyed
-* make manual attendence check system
-* should do admin authourization
+* **solved** / error should not orrur when user record destroyed
+* **solved** / make manual attendence check system
+* **solved** / should do admin authourization
 * make whitelist group who should be checked
-* make download button to download list who where present in schedule page
+* **solved** / make download button to download list who where present in schedule page
 * make download button to download list who where present in schedule list page
 ## License
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

@@ -3,9 +3,9 @@
   <div class="login-page">
     <div class="form">
       <h1 style="text-align: center;">일정 작성</h1>
-      <form class="login-form" action="../admin/create" method="post">
+      <form class="login-form" action="/attendence/admin/create<%=('/'+@modify.id.to_s) if @modify%>" method="post">
         <label for="name">일정 이름</label>
-        <input type="text" id="name" name="attendence_list[name]"/>
+        <input type="text" id="name" name="attendence_list[name]" value="<%=@modify.name if @modify%>"/>
         <button>작성</button>
       </form>
     </div>

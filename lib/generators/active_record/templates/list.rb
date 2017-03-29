@@ -2,6 +2,7 @@ class CheckAttendenceCreate<%= (name+"_lists").camelize %> < ActiveRecord::Migra
   def change
     create_table :<%= name+"_lists" %> do |t|
       t.integer    :user_id,    null: false
+      t.string     :user_name
       t.integer    :code
       t.string     :name   ,    null: false
       t.datetime   :start  ,    null: false

@@ -8,6 +8,12 @@ module CheckAttendence
     mattr_accessor :user_model_name
     @@user_model_name = 'user'
 
+    mattr_accessor :user_model_main_column
+    @@user_model_main_column = "email"
+
+    mattr_accessor :home_url
+    @@home_url = "/"
+
     mattr_accessor :use_layout
     @@use_layout = false
 
@@ -32,5 +38,6 @@ module CheckAttendence
 
 end
 require_relative "check_attendence/rails/routes"
+require "check_attendence/ability"
 require "check_attendence/version"
 require "check_attendence/engine"

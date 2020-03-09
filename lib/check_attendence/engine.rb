@@ -4,8 +4,8 @@ module CheckAttendence
     isolate_namespace CheckAttendence
     config.autoload_paths += Dir["#{config.root}/lib"]
 
-    initializer 'any_login.assets_precompile', :group => :all do |app|
-      app.config.assets.precompile += ['check_attendence/*']
+    initializer 'check_attendence.assets.precompile', :group => :all do |app|
+      app.config.assets.precompile += ['check_attendence_manifest.js']
     end
   end
 end

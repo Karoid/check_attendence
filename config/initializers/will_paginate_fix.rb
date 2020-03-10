@@ -1,5 +1,5 @@
-module WillPaginate::ActionView::LinkRenderer
-  class CustomLinkRenderer
+require 'will_paginate/view_helpers/link_renderer'
+class CustomLinkRenderer < WillPaginate::ActionView::LinkRenderer
     def url(page)
       @base_url_params ||= begin
         url_params = merge_get_params(default_url_params)
@@ -16,5 +16,4 @@ module WillPaginate::ActionView::LinkRenderer
         @template.url_for(url_params)
       end
     end
-  end
 end

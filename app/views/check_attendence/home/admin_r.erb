@@ -62,7 +62,7 @@
   </tbody>
 </table>
 <center>
-<%= will_paginate @attendence , previous_label: "◀", next_label: "▶", renderer: CustomLinkRenderer,  url_scope: CheckAttendence::Engine.routes %>
+<%= will_paginate @attendence , previous_label: "◀", next_label: "▶", renderer: @custom_paginate_renderer,  url_scope: CheckAttendence::Engine.routes %>
 </center>
 </div>
 

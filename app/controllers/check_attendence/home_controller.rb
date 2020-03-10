@@ -35,6 +35,7 @@ module CheckAttendence
       return not_allowed unless admin_allowed?
       @article_page = attendence_list_model.where("name LIKE ?", "%#{params[:search]}%")
       .paginate(:page => params[:page], :per_page => 5).order('id DESC')
+      @custom_paginate_renderer = custom_paginate_renderer
       #Json 요청으로 목록 받아올때
       if params[:json]
         respond_to do |format|
@@ -63,6 +64,8 @@ module CheckAttendence
       return not_allowed unless admin_allowed?
       @attendence_list = attendence_list_model.find(params[:id])
       @attendence = attendence_model.where(attendence_list_id: params[:id]).paginate(:page => params[:page], :per_page => 5).order('id DESC')
+      @custom_paginate_renderer = custom_paginate_renderer
+
       if params[:json]
         respond_to do |format|
           format.json { render json: make_object_to_json(@attendence) }
@@ -187,6 +190,27 @@ module CheckAttendence
         redirect_to :back
       rescue
         redirect_to CheckAttendence.home_url
+      end
+    end
+
+    def custom_paginate_renderer
+      Class.new(WillPaginate::ActionView::LinkRenderer) do
+        def url(page)
+          @base_url_params ||= begin
+                                 url_params = merge_get_params(default_url_params)
+                                 url_params[:only_path] = true
+                                 merge_optional_params(url_params)
+                               end
+
+          url_params = @base_url_params.dup
+          add_current_page_param(url_params, page)
+
+          if @options[:url_scope]
+            @options[:url_scope].url_for(url_params)
+          else
+            @template.url_for(url_params)
+          end
+        end
       end
     end
   end

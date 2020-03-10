@@ -23,7 +23,7 @@
   </table>
   <!--게시글 목록 끝-->
   <nav aria-label="Page navigation" style="text-align: center;">
-    <%= will_paginate @article_page , previous_label: "◀", next_label: "▶", renderer: CustomLinkRenderer,  url_scope: CheckAttendence::Engine.routes %>
+    <%= will_paginate @article_page , previous_label: "◀", next_label: "▶", renderer: @custom_paginate_renderer,  url_scope: CheckAttendence::Engine.routes %>
   </nav>
   <!--검색-->
   <form class="search" method="get">

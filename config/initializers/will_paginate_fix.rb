@@ -1,3 +1,4 @@
+require 'will_paginate/view_helpers'
 require 'will_paginate/view_helpers/link_renderer'
 class CustomLinkRenderer < WillPaginate::ActionView::LinkRenderer
     def url(page)
